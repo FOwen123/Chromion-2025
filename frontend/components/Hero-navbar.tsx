@@ -1,15 +1,13 @@
 "use client"
 import * as React from "react"
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Menu, X } from 'lucide-react'
-import { Logo } from './hero-section-9'
+import { Menu, X , LinkIcon} from 'lucide-react'
 
 const menuItems = [
-    { name: 'Features', href: '#' },
-    { name: 'Solution', href: '#' },
-    { name: 'Pricing', href: '#' },
-    { name: 'About', href: '#' },
+    { name: 'Features', href: '#features' },
+    { name: 'Solution', href: 'solution' },
+    { name: 'Pricing', href: 'pricing' },
+    { name: 'About', href: 'about' },
 ]
 
 export const Navbar = () => {
@@ -26,7 +24,8 @@ export const Navbar = () => {
                                 href="/"
                                 aria-label="home"
                                 className="flex items-center space-x-2">
-                                <Logo />
+                                <LinkIcon className="size-6 text-blue-500"/>
+                                <h1 className="text-2xl font-medium">LinkFi</h1>
                             </Link>
 
                             <button
