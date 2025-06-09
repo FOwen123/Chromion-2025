@@ -1,12 +1,22 @@
+'use client';
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "./Hero-navbar";
-import { ConnectEmbed } from "thirdweb/react";
+import { ConnectEmbed, useActiveAccount } from "thirdweb/react";
 import { client } from "@/lib/client";
+import { useState, useEffect } from "react";
+import { CircularLoader } from "@/components/ui/loader";
 
 export const HeroSection = () => {
+  const account = useActiveAccount();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div>
       <Navbar />
@@ -33,7 +43,23 @@ export const HeroSection = () => {
           </div>
 
           <div className="flex justify-center">
-            <ConnectEmbed client={client}/>
+            {mounted && !account ? (
+              <ConnectEmbed 
+                client={client}
+                theme="dark"
+              />
+            ) : mounted && account ? (
+              <div className="text-center">
+                <div className="flex flex-col items-center gap-3">
+                  <CircularLoader size="md" />
+                  <p className="text-gray-400">Wallet connected! Redirecting...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-center items-center h-16 w-64">
+                <CircularLoader size="sm" />
+              </div>
+            )}
           </div>
 
         </section>
