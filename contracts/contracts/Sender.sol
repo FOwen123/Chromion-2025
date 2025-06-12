@@ -9,7 +9,7 @@ import {SafeERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solid
 
 contract Sender is OwnerIsCreator {
     using SafeERC20 for IERC20;
-    
+
     error InvalidRouter();
     error InvalidLinkToken();
     error InvalidUsdcToken();
@@ -167,7 +167,7 @@ contract Sender is OwnerIsCreator {
                 tokenAmounts: tokenAmounts,
                 extraArgs: Client._argsToBytes(
                     Client.GenericExtraArgsV2({
-                        gasLimit: 200_000, 
+                        gasLimit: 400_000,
                         allowOutOfOrderExecution: true
                     })
                 ),
