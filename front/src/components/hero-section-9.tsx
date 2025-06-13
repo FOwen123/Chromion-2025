@@ -53,7 +53,7 @@ const Logo = ({ className }: { className?: string }) => {
 export const HeroSection = () => {
   const account = useActiveAccount();
   const [menuState, setMenuState] = useState(false);
-  const { account: storeAccount, isLoggedIn, isLoading, login } = useAccountStore();
+  const { isLoggedIn, isLoading, login } = useAccountStore();
   const navigate = useNavigate();
 
   // Auto-login when wallet connects
