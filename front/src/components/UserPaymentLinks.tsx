@@ -12,6 +12,23 @@ const fetchPaymentLinks = async (creator_wallet: string) => {
   return data;
 };
 
+function PaymentLinksSkeleton() {
+  return (
+    <div>
+      <div className="h-7 w-48 bg-zinc-800 rounded animate-pulse mb-2" />
+      <ul className="space-y-2">
+        {[...Array(3)].map((_, i) => (
+          <li key={i} className="p-2 border rounded">
+            <div className="h-5 w-32 bg-zinc-800 rounded animate-pulse mb-2" />
+            <div className="h-4 w-48 bg-zinc-800 rounded animate-pulse mb-2" />
+            <div className="h-4 w-64 bg-zinc-800 rounded animate-pulse" />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function UserPaymentLinks() {
   const { account } = useAccountStore();
   const address = account?.address;
@@ -24,7 +41,7 @@ export function UserPaymentLinks() {
   });
 
   if (!address) return <div>Please connect your wallet.</div>;
-  if (isLoading) return <div>Loading your payment links...</div>;
+  if (isLoading) return <PaymentLinksSkeleton />;
   if (error) return <div>Error loading payment links.</div>;
   if (!data || data.length === 0) return <div>No payment links found.</div>;
 

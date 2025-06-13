@@ -68,8 +68,8 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <div className="flex items-center gap-2 p-2 mb-9">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">L</span>
+            <div className="flex items-center justify-center">
+              <img src="/linkfe-removebg.png" alt="LinkFi" className="h-8 w-auto" />
             </div>
             <SidebarGroupLabel className="text-lg font-semibold">LinkFi</SidebarGroupLabel>
           </div>

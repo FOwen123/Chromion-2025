@@ -70,7 +70,7 @@ const defaultLegalLinks = [
 export const Footer7 = ({
   logo = {
     url: "https://www.shadcnblocks.com",
-    src: "/LinkFi(1).png",
+    src: "/linkfe-removebg.png",
     alt: "logo",
     title: "LinkFi",
   },
@@ -95,7 +95,7 @@ export const Footer7 = ({
                   className="h-8"
                 />
               </a>
-              <h2 className="text-xl font-semibold">{logo.title}</h2>
+              <h2 className="text-xl font-light">{logo.title}</h2>
             </div>
             <p className="max-w-[70%] text-sm text-muted-foreground">
               {description}

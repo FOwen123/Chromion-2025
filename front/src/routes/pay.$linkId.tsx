@@ -11,6 +11,7 @@ import { useAccountStore } from "@/stores/accounts"
 import { toast } from "sonner"
 import { sendTransaction, prepareTransaction } from "thirdweb"
 import { defineChain } from "thirdweb/chains"
+import { createWallet } from "thirdweb/wallets"
 
 interface PaymentLink {
   id: string
@@ -261,7 +262,13 @@ function RouteComponent() {
           <CardContent className="space-y-4">
             {!isLoggedIn ? (
               <div className="text-center">
-                <ConnectEmbed client={client} theme="dark" />
+                <ConnectEmbed client={client} 
+                theme="dark" 
+                wallets={[
+                  createWallet("io.metamask"),
+                  createWallet("com.coinbase.wallet"),
+                  createWallet("me.rainbow"),
+  ]}/>
               </div>
             ) : (
               <div className="space-y-4">
