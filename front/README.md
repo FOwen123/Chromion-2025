@@ -13,6 +13,6 @@
 - Vite (build tool)
 - TypeScript
 - ESLint & Prettier (linting & formatting)
-- Vitest & Testing Library (testing)
+- Vitest & Testing Library (=testing)
 
 
