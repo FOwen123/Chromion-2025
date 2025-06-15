@@ -7,10 +7,16 @@ import {OwnerIsCreator} from "@chainlink/contracts/src/v0.8/shared/access/OwnerI
 import {IERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v5.0.2/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v5.0.2/contracts/token/ERC20/utils/SafeERC20.sol";
 
+/**
+ * @title Sender
+ * @author Hao
+ * @notice This contract is used to send tokens to a destination chain.
+ */
 contract Sender is OwnerIsCreator {
     using SafeERC20 for IERC20;
-
-    error InvalidRouter();
+    
+    // Custom Errors
+    error InvalidRouter(); 
     error InvalidLinkToken();
     error InvalidUsdcToken();
     error NotEnoughBalance(uint256 currentBalance, uint256 calculatedFees);
@@ -22,12 +28,17 @@ contract Sender is OwnerIsCreator {
     );
     error InvalidReceiverAddress();
 
+
+    // Whitelisted Chains
     mapping(uint64 => bool) public whitelistedChains;
 
+    // Immutable Variables
     IRouterClient private immutable i_router;
     IERC20 private immutable i_linkToken;
     IERC20 private immutable i_usdcToken;
 
+
+    // Events
     event TokensTransferred(
         bytes32 indexed messageId, // The unique ID of the message.
         uint64 indexed destinationChainSelector, // The chain selector of the destination chain.
@@ -167,7 +178,7 @@ contract Sender is OwnerIsCreator {
                 tokenAmounts: tokenAmounts,
                 extraArgs: Client._argsToBytes(
                     Client.GenericExtraArgsV2({
-                        gasLimit: 400_000,
+                        gasLimit: 400_000, 
                         allowOutOfOrderExecution: true
                     })
                 ),
