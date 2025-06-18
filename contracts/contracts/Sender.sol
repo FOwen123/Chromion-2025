@@ -6,17 +6,21 @@ import {Client} from "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
 import {OwnerIsCreator} from "@chainlink/contracts/src/v0.8/shared/access/OwnerIsCreator.sol";
 import {IERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v5.0.2/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v5.0.2/contracts/token/ERC20/utils/SafeERC20.sol";
+import {AccessControl} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v5.0.2/contracts/access/AccessControl.sol";
 
 /**
  * @title Sender
  * @author Hao
  * @notice This contract is used to send tokens to a destination chain.
  */
-contract Sender is OwnerIsCreator {
+contract Sender is OwnerIsCreator, AccessControl {
     using SafeERC20 for IERC20;
-    
+
+    // Access Control Roles
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
     // Custom Errors
-    error InvalidRouter(); 
+    error InvalidRouter();
     error InvalidLinkToken();
     error InvalidUsdcToken();
     error NotEnoughBalance(uint256 currentBalance, uint256 calculatedFees);
@@ -28,7 +32,6 @@ contract Sender is OwnerIsCreator {
     );
     error InvalidReceiverAddress();
 
-
     // Whitelisted Chains
     mapping(uint64 => bool) public whitelistedChains;
 
@@ -36,7 +39,6 @@ contract Sender is OwnerIsCreator {
     IRouterClient private immutable i_router;
     IERC20 private immutable i_linkToken;
     IERC20 private immutable i_usdcToken;
-
 
     // Events
     event TokensTransferred(
@@ -76,17 +78,28 @@ contract Sender is OwnerIsCreator {
         i_router = IRouterClient(_router);
         i_linkToken = IERC20(_link);
         i_usdcToken = IERC20(_usdcToken);
+
+        // Setup roles
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(ADMIN_ROLE, msg.sender);
+    }
+
+    // Override supportsInterface for AccessControl
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(AccessControl) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 
     function whitelistChain(
         uint64 _destinationChainSelector
-    ) external onlyOwner {
+    ) external onlyRole(ADMIN_ROLE) {
         whitelistedChains[_destinationChainSelector] = true;
     }
 
     function denylistChain(
         uint64 _destinationChainSelector
-    ) external onlyOwner {
+    ) external onlyRole(ADMIN_ROLE) {
         whitelistedChains[_destinationChainSelector] = false;
     }
 
@@ -97,7 +110,7 @@ contract Sender is OwnerIsCreator {
         address _seller
     )
         external
-        onlyOwner
+        onlyRole(ADMIN_ROLE)
         onlyWhitelistedChain(_destinationChainSelector)
         validateReceiver(_receiver)
         returns (bytes32 messageId)
@@ -178,7 +191,7 @@ contract Sender is OwnerIsCreator {
                 tokenAmounts: tokenAmounts,
                 extraArgs: Client._argsToBytes(
                     Client.GenericExtraArgsV2({
-                        gasLimit: 400_000, 
+                        gasLimit: 400_000,
                         allowOutOfOrderExecution: true
                     })
                 ),
@@ -189,7 +202,9 @@ contract Sender is OwnerIsCreator {
     receive() external payable {}
 
     // Withdraw Link Token
-    function withdrawLinkToken(address _beneficiary) public onlyOwner {
+    function withdrawLinkToken(
+        address _beneficiary
+    ) public onlyRole(ADMIN_ROLE) {
         // Retrieve the balance of this contract
         uint256 amount = i_linkToken.balanceOf(address(this));
 
@@ -200,7 +215,9 @@ contract Sender is OwnerIsCreator {
     }
 
     // Withdraw USDC from the contract
-    function withdrawUsdcToken(address _beneficiary) public onlyOwner {
+    function withdrawUsdcToken(
+        address _beneficiary
+    ) public onlyRole(ADMIN_ROLE) {
         uint256 amount = i_usdcToken.balanceOf(address(this));
 
         if (amount == 0) revert NothingToWithdraw();

@@ -6,16 +6,22 @@ import {Client} from "@chainlink/contracts-ccip/contracts/libraries/Client.sol";
 import {OwnerIsCreator} from "@chainlink/contracts/src/v0.8/shared/access/OwnerIsCreator.sol";
 import {IERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v5.0.2/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v5.0.2/contracts/token/ERC20/utils/SafeERC20.sol";
+import {AccessControl} from "@chainlink/contracts/src/v0.8/vendor/openzeppelin-solidity/v5.0.2/contracts/access/AccessControl.sol";
 
-contract Escrow is CCIPReceiver, OwnerIsCreator {
+contract Escrow is CCIPReceiver, OwnerIsCreator, AccessControl {
     using SafeERC20 for IERC20;
-    
+
+    // Access Control Roles
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant DISPUTE_RESOLVER_ROLE =
+        keccak256("DISPUTE_RESOLVER_ROLE");
+
     // Errors
     error InvalidLinkToken();
     error InvalidUsdcToken();
     error UnauthorizedSender(address sender);
     error UnauthorizedSourceChain(uint64 destinationChainSelector);
-    
+
     error OrderNotFound(bytes32 orderId);
     error InvalidOrderStatus(
         bytes32 orderId,
@@ -29,7 +35,6 @@ contract Escrow is CCIPReceiver, OwnerIsCreator {
     error InvalidAmount(uint256 amount);
     error TransferFailed();
     error InvalidFeePercent(uint256 feePercent);
-
 
     enum OrderStatus {
         Pending, // Funds locked, waiting for delivery confirmation
@@ -73,11 +78,11 @@ contract Escrow is CCIPReceiver, OwnerIsCreator {
 
     // Events
     event MessageReceived(
-        bytes32 indexed messageId, 
-        uint64 indexed sourceChainSelector, 
+        bytes32 indexed messageId,
+        uint64 indexed sourceChainSelector,
         address sender, // The buyer
-        address seller, 
-        address token, 
+        address seller,
+        address token,
         uint256 tokenAmount
     );
 
@@ -132,6 +137,18 @@ contract Escrow is CCIPReceiver, OwnerIsCreator {
         i_linkToken = IERC20(_link);
         i_usdcToken = IERC20(_usdcToken);
         s_platformFeeRecipient = _platformFeeRecipient;
+
+        // Setup roles
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(ADMIN_ROLE, msg.sender);
+        _grantRole(DISPUTE_RESOLVER_ROLE, msg.sender);
+    }
+
+    // Override supportsInterface to handle multiple inheritance
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(AccessControl, CCIPReceiver) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 
     modifier onlyAllowlisted(uint64 _sourceChainSelector, address _sender) {
@@ -178,59 +195,53 @@ contract Escrow is CCIPReceiver, OwnerIsCreator {
     // Allowlist source chain
     function allowlistSource(
         uint64 _sourceChainSelector
-    ) external onlyOwner {
+    ) external onlyRole(ADMIN_ROLE) {
         allowlistedSourceChains[_sourceChainSelector] = true;
     }
 
     // Allowlist sender
-    function allowlistSender(
-        address _sender
-    ) external onlyOwner {
+    function allowlistSender(address _sender) external onlyRole(ADMIN_ROLE) {
         authorizedSenders[_sender] = true;
     }
 
     // Denylist source chain
-    function denylistSource(uint64 _sourceChainSelector) external onlyOwner {
+    function denylistSource(
+        uint64 _sourceChainSelector
+    ) external onlyRole(ADMIN_ROLE) {
         allowlistedSourceChains[_sourceChainSelector] = false;
     }
 
     // Denylist sender
-    function denylistSender(address _sender) external onlyOwner {
+    function denylistSender(address _sender) external onlyRole(ADMIN_ROLE) {
         authorizedSenders[_sender] = false;
-    }  
+    }
 
     // Returns the details of the last CCIP received message
-    function getLastReceivedMessageDetails() 
+    function getLastReceivedMessageDetails()
         public
-        view 
+        view
         returns (
-            bytes32 messageId, 
-            address buyer, 
-            address seller, 
-            address tokenAddress, 
+            bytes32 messageId,
+            address buyer,
+            address seller,
+            address tokenAddress,
             uint256 tokenAmount
         )
     {
-        return (
-            s_orderId, 
-            s_buyer, 
-            s_seller,
-            s_tokenAddress, 
-            s_tokenAmount
-        );
+        return (s_orderId, s_buyer, s_seller, s_tokenAddress, s_tokenAmount);
     }
 
     // CCIP Receiver function - handles incoming cross-chain payments
     function _ccipReceive(
         Client.Any2EVMMessage memory message
-    ) 
-        internal 
-        override 
+    )
+        internal
+        override
         onlyAllowlisted(
             message.sourceChainSelector,
             abi.decode(message.sender, (address))
-        ) 
-    {   
+        )
+    {
         s_orderId = message.messageId;
         (s_buyer, s_seller) = abi.decode(message.data, (address, address));
 
@@ -238,11 +249,11 @@ contract Escrow is CCIPReceiver, OwnerIsCreator {
         s_tokenAmount = message.destTokenAmounts[0].amount;
 
         emit MessageReceived(
-            message.messageId, 
-            message.sourceChainSelector, 
+            message.messageId,
+            message.sourceChainSelector,
             abi.decode(message.sender, (address)), //
             s_seller,
-            s_tokenAddress, 
+            s_tokenAddress,
             s_tokenAmount
         );
 
@@ -328,7 +339,7 @@ contract Escrow is CCIPReceiver, OwnerIsCreator {
     function resolveDisputeForSeller(
         bytes32 _orderId,
         string calldata _aiReason
-    ) external onlyOwner orderExists(_orderId) {
+    ) external onlyRole(DISPUTE_RESOLVER_ROLE) orderExists(_orderId) {
         Order storage order = orders[_orderId];
 
         if (order.status != OrderStatus.Disputed) {
@@ -360,7 +371,7 @@ contract Escrow is CCIPReceiver, OwnerIsCreator {
     function resolveDisputeForBuyer(
         bytes32 _orderId,
         string calldata _aiReason
-    ) external onlyOwner orderExists(_orderId) {
+    ) external onlyRole(DISPUTE_RESOLVER_ROLE) orderExists(_orderId) {
         Order storage order = orders[_orderId];
 
         if (order.status != OrderStatus.Disputed) {
@@ -382,14 +393,11 @@ contract Escrow is CCIPReceiver, OwnerIsCreator {
     }
 
     // Internal function to handle token transfers
-    function _transferTokens(
-        address _to,
-        uint256 _amount
-    ) internal {
+    function _transferTokens(address _to, uint256 _amount) internal {
         i_usdcToken.safeTransfer(_to, _amount);
     }
 
-    function setPlatformFee(uint256 _feePercent) external onlyOwner {
+    function setPlatformFee(uint256 _feePercent) external onlyRole(ADMIN_ROLE) {
         if (_feePercent > 1000) {
             // Max 10%
             revert InvalidFeePercent(_feePercent);
@@ -397,7 +405,9 @@ contract Escrow is CCIPReceiver, OwnerIsCreator {
         s_platformFeePercent = _feePercent;
     }
 
-    function setPlatformFeeRecipient(address _recipient) external onlyOwner {
+    function setPlatformFeeRecipient(
+        address _recipient
+    ) external onlyRole(ADMIN_ROLE) {
         s_platformFeeRecipient = _recipient;
     }
 
@@ -424,10 +434,21 @@ contract Escrow is CCIPReceiver, OwnerIsCreator {
         return orders[_orderId].status;
     }
 
+    // Role Management Functions
+    function grantDisputeResolverRole(
+        address account
+    ) external onlyRole(ADMIN_ROLE) {
+        _grantRole(DISPUTE_RESOLVER_ROLE, account);
+    }
+
+    function revokeDisputeResolverRole(
+        address account
+    ) external onlyRole(ADMIN_ROLE) {
+        _revokeRole(DISPUTE_RESOLVER_ROLE, account);
+    }
+
     // Emergency functions
-    function emergencyWithdraw(
-        uint256 _amount
-    ) external onlyOwner {
+    function emergencyWithdraw(uint256 _amount) external onlyRole(ADMIN_ROLE) {
         _transferTokens(msg.sender, _amount);
     }
 
