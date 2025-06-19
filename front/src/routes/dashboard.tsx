@@ -9,8 +9,8 @@ import {
   DollarSign,
   Bitcoin,
   LinkIcon,
-  CircleDot,
 } from "lucide-react"
+import { FaEthereum } from "react-icons/fa";
 import { Button } from "@/components/ui/button"
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -182,7 +182,7 @@ function RouteComponent() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="bg-blue-500/20 p-2 rounded-full">
-                        <CircleDot className="h-4 w-4 text-blue-500" />
+                        <FaEthereum className="h-4 w-4 text-blue-500" />
                       </div>
                       <div>
                         <p className="font-medium">Ethereum</p>

@@ -42,10 +42,8 @@ export function CreatePaymentModal({ trigger, onLinkCreated }: CreatePaymentModa
     title: "",
     description: "",
     amount: "",
-    currency: "ETH",
-    chainId: "1", // Ethereum mainnet
-    expiresIn: "", // hours
-    maxUses: "",
+    currency: "USDC",
+    chainId: "11155111", // Sepolia testnet
   });
 
   const generateShortId = (): string => {
@@ -58,6 +56,12 @@ export function CreatePaymentModal({ trigger, onLinkCreated }: CreatePaymentModa
   };
 
   const handleInputChange = (field: string, value: string) => {
+    // Handle chain selection with availability check
+    if (field === "chainId" && value !== "11155111") {
+      toast.error("⚠️ Only Sepolia network is currently supported. Other networks are coming soon!");
+      return; // Don't update the state, keep it as Sepolia
+    }
+    
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -73,6 +77,35 @@ export function CreatePaymentModal({ trigger, onLinkCreated }: CreatePaymentModa
     setIsLoading(true);
 
     try {
+      // First, ensure user profile exists (create if not exists)
+      const { data: existingUser, error: userError } = await supabase
+        .from('user_profiles')
+        .select('wallet_address')
+        .eq('wallet_address', address)
+        .maybeSingle()
+
+      if (!existingUser && !userError) {
+        // Create user profile if doesn't exist
+        await supabase
+          .from('user_profiles')
+          .insert({
+            wallet_address: address,
+            first_login: new Date().toISOString(),
+            last_login: new Date().toISOString(),
+            login_count: 1,
+            is_active: true
+          })
+      } else if (existingUser) {
+        // Update last login if user exists
+        await supabase
+          .from('user_profiles')
+          .update({
+            last_login: new Date().toISOString(),
+            login_count: (existingUser as any).login_count + 1
+          })
+          .eq('wallet_address', address)
+      }
+
       let shortId = generateShortId();
       
       let attempts = 0;
@@ -89,9 +122,6 @@ export function CreatePaymentModal({ trigger, onLinkCreated }: CreatePaymentModa
         console.log(`🔄 Collision detected, trying new ID: ${shortId}`);
       }
       
-      const expiresAt = formData.expiresIn 
-        ? new Date(Date.now() + parseInt(formData.expiresIn) * 60 * 60 * 1000).toISOString()
-        : null;
 
       const insertData = {
         short_id: shortId,
@@ -99,12 +129,10 @@ export function CreatePaymentModal({ trigger, onLinkCreated }: CreatePaymentModa
         title: formData.title,
         description: formData.description || null,
         amount: parseFloat(formData.amount),
-        currency: formData.currency !== "ETH" ? formData.currency : undefined,
-        chain_id: formData.chainId !== "1" ? parseInt(formData.chainId) : undefined,
-        expires_at: expiresAt,
-        max_uses: formData.maxUses ? parseInt(formData.maxUses) : null,
+        currency: formData.currency,
+        chain_id: parseInt(formData.chainId),
       };
-      // Reset form
+      
       const { data, error } = await supabase
         .from('payment_links')
         .insert(insertData)
@@ -129,13 +157,9 @@ export function CreatePaymentModal({ trigger, onLinkCreated }: CreatePaymentModa
         title: "",
         description: "",
         amount: "",
-        currency: "ETH", 
-        chainId: "1",
-        expiresIn: "",
-        maxUses: "",
+        currency: "USDC", 
+        chainId: "11155111",
       });
-      // Erase the created link after a short delay so the modal closes
-      setTimeout(() => setCreatedLink(null), 1500);
       
     } catch (error) {
       console.error("💥 Error creating payment link:", error);
@@ -275,9 +299,7 @@ export function CreatePaymentModal({ trigger, onLinkCreated }: CreatePaymentModa
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ETH">ETH</SelectItem>
                   <SelectItem value="USDC">USDC</SelectItem>
-                  <SelectItem value="USDT">USDT</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -290,37 +312,15 @@ export function CreatePaymentModal({ trigger, onLinkCreated }: CreatePaymentModa
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">Ethereum</SelectItem>
-                <SelectItem value="137">Polygon</SelectItem>
-                <SelectItem value="56">BSC</SelectItem>
-                <SelectItem value="43114">Avalanche</SelectItem>
+                <SelectItem value="11155111">Sepolia</SelectItem>
+                <SelectItem value="42161" className="text-muted-foreground">Arbitrum </SelectItem>
+                <SelectItem value="42220" className="text-muted-foreground">Celo </SelectItem>
+                <SelectItem value="8453" className="text-muted-foreground">Base </SelectItem>
+                <SelectItem value="43114" className="text-muted-foreground">Avalanche </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="expiresIn">Expires In (hours)</Label>
-              <Input
-                id="expiresIn"
-                type="number"
-                placeholder="24"
-                value={formData.expiresIn}
-                onChange={(e) => handleInputChange("expiresIn", e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="maxUses">Max Uses</Label>
-              <Input
-                id="maxUses"
-                type="number"
-                placeholder="Unlimited"
-                value={formData.maxUses}
-                onChange={(e) => handleInputChange("maxUses", e.target.value)}
-              />
-            </div>
-          </div>
 
           <DialogFooter>
             <Button
