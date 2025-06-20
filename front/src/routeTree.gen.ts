@@ -9,7 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RefundRouteImport } from './routes/refund'
+import { Route as ProcessfundsRouteImport } from './routes/processfunds'
 import { Route as PaymentlinksRouteImport } from './routes/paymentlinks'
 import { Route as HomepageRouteImport } from './routes/homepage'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -17,9 +17,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PayLinkIdRouteImport } from './routes/pay.$linkId'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
 
-const RefundRoute = RefundRouteImport.update({
-  id: '/refund',
-  path: '/refund',
+const ProcessfundsRoute = ProcessfundsRouteImport.update({
+  id: '/processfunds',
+  path: '/processfunds',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentlinksRoute = PaymentlinksRouteImport.update({
@@ -58,7 +58,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/homepage': typeof HomepageRoute
   '/paymentlinks': typeof PaymentlinksRoute
-  '/refund': typeof RefundRoute
+  '/processfunds': typeof ProcessfundsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/pay/$linkId': typeof PayLinkIdRoute
 }
@@ -67,7 +67,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/homepage': typeof HomepageRoute
   '/paymentlinks': typeof PaymentlinksRoute
-  '/refund': typeof RefundRoute
+  '/processfunds': typeof ProcessfundsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/pay/$linkId': typeof PayLinkIdRoute
 }
@@ -77,7 +77,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/homepage': typeof HomepageRoute
   '/paymentlinks': typeof PaymentlinksRoute
-  '/refund': typeof RefundRoute
+  '/processfunds': typeof ProcessfundsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/pay/$linkId': typeof PayLinkIdRoute
 }
@@ -88,7 +88,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/homepage'
     | '/paymentlinks'
-    | '/refund'
+    | '/processfunds'
     | '/demo/tanstack-query'
     | '/pay/$linkId'
   fileRoutesByTo: FileRoutesByTo
@@ -97,7 +97,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/homepage'
     | '/paymentlinks'
-    | '/refund'
+    | '/processfunds'
     | '/demo/tanstack-query'
     | '/pay/$linkId'
   id:
@@ -106,7 +106,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/homepage'
     | '/paymentlinks'
-    | '/refund'
+    | '/processfunds'
     | '/demo/tanstack-query'
     | '/pay/$linkId'
   fileRoutesById: FileRoutesById
@@ -116,7 +116,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   HomepageRoute: typeof HomepageRoute
   PaymentlinksRoute: typeof PaymentlinksRoute
-  RefundRoute: typeof RefundRoute
+  ProcessfundsRoute: typeof ProcessfundsRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   PayLinkIdRoute: typeof PayLinkIdRoute
 }
@@ -151,11 +151,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentlinksRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/refund': {
-      id: '/refund'
-      path: '/refund'
-      fullPath: '/refund'
-      preLoaderRoute: typeof RefundRouteImport
+    '/processfunds': {
+      id: '/processfunds'
+      path: '/processfunds'
+      fullPath: '/processfunds'
+      preLoaderRoute: typeof ProcessfundsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/tanstack-query': {
@@ -180,7 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   HomepageRoute: HomepageRoute,
   PaymentlinksRoute: PaymentlinksRoute,
-  RefundRoute: RefundRoute,
+  ProcessfundsRoute: ProcessfundsRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   PayLinkIdRoute: PayLinkIdRoute,
 }

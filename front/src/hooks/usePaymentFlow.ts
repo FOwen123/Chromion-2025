@@ -7,6 +7,7 @@ import { client } from "@/lib/client"
 import { Transfer } from "@/lib/contract"
 import { supabase } from "@/lib/supabase/supabase-client"
 import { toast } from "sonner"
+import { useRouter } from "@tanstack/react-router"
 
 interface PaymentLink {
   id: string
@@ -21,6 +22,7 @@ interface PaymentLink {
 export function usePaymentFlow() {
   const [isPaying, setIsPaying] = useState(false)
   const activeAccount = useActiveAccount()
+  const router = useRouter()
 
   // Verify chain whitelisting status
   const verifyChainWhitelisting = useCallback(async (contract: any, chainSelector: string) => {
@@ -111,14 +113,60 @@ export function usePaymentFlow() {
         throw new Error("Only Sepolia network is currently supported")
       }
 
-      const contract = getContract({
+      // USDC contract on Sepolia
+      const USDC_CONTRACT_ADDRESS = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
+      
+      // Contract address where we're sending the tokens
+      const contractAddress = "0x05Bc05725AE7dF7BfDd94891F138Aae0f0a2C689";
+      
+      const usdcContract = getContract({
         client,
         chain: sepolia,
-        address: Transfer.smartContractAddress,
-        abi: Transfer.abi[0] as any // Type assertion for the ABI
+        address: USDC_CONTRACT_ADDRESS,
+        abi: [
+          {
+            "inputs": [
+              {"name": "to", "type": "address"},
+              {"name": "amount", "type": "uint256"}
+            ],
+            "name": "transfer",
+            "outputs": [{"name": "", "type": "bool"}],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {"name": "owner", "type": "address"}
+            ],
+            "name": "balanceOf",
+            "outputs": [{"name": "", "type": "uint256"}],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {"name": "spender", "type": "address"},
+              {"name": "amount", "type": "uint256"}
+            ],
+            "name": "approve",
+            "outputs": [{"name": "", "type": "bool"}],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {"name": "owner", "type": "address"},
+              {"name": "spender", "type": "address"}
+            ],
+            "name": "allowance",
+            "outputs": [{"name": "", "type": "uint256"}],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ]
       });
 
-      console.log("Preparing smart contract call...");
+      console.log("Preparing USDC transfer...");
       
       // Convert amount to proper decimals (USDC uses 6 decimals)
       const amountInWei = BigInt(Math.floor(paymentLink.amount * 1e6));
@@ -130,31 +178,23 @@ export function usePaymentFlow() {
         finalAmountInWei: amountInWei.toString()
       });
       
-      // Escrow contract address for payments
-      const escrowContractAddress = "0xd17997e2306301c9e0ca47d6ee6d3e67f9a3a712";
-      
-      console.log(`🏦 Sending payment to escrow contract: ${escrowContractAddress}`);
+      console.log(`💸 Sending ${paymentLink.amount} USDC to contract: ${contractAddress}`);
 
-      // Note: If you get "NotEnoughBalance" error, you may need to approve USDC spending first
-      console.log("💡 Tip: If payment fails with 'NotEnoughBalance', you may need to approve USDC spending manually");
-
-      // Prepare the contract call to send to escrow
+      // STEP 1: Send USDC FROM user TO the escrow contract
+      // Later, when delivery is confirmed, the contract will send funds TO the seller
       const transaction = prepareContractCall({
-        contract,
-        method: "transferTokensPayLINK",
+        contract: usdcContract,
+        method: "transfer",
         params: [
-          BigInt("14767482510784806043"), // _destinationChainSelector (using your whitelisted selector)
-          escrowContractAddress, // _receiver (escrow contract)
-          amountInWei, // _amount (in USDC decimals)
-          paymentLink.creator_wallet // _seller (original recipient for tracking)
+          contractAddress, // to address (the escrow contract)
+          amountInWei, // amount in USDC decimals
         ]
-      } as any);
+      });
 
-      console.log("🚀 Sending transaction to ESCROW with params:", {
-        destinationChainSelector: "14767482510784806043",
-        receiver: escrowContractAddress,
+      console.log("🚀 Sending USDC transfer with params:", {
+        to: contractAddress,
         amount: amountInWei.toString(),
-        seller: paymentLink.creator_wallet
+        amountFormatted: paymentLink.amount
       });
 
       toast.info("Please confirm the transaction in your wallet...");
@@ -167,12 +207,12 @@ export function usePaymentFlow() {
 
       console.log("✅ Transaction sent successfully:", result);
 
-      // Update payment record with transaction hash
+      // Update payment record with transaction hash and set to pending_delivery
       await supabase
         .from('payments')
         .update({
           tx_hash: result.transactionHash,
-          status: 'completed',
+          status: 'pending_delivery', // Funds are in contract, waiting for delivery confirmation
           paid_at: new Date().toISOString()
         })
         .eq('id', payment.id)
@@ -186,7 +226,7 @@ export function usePaymentFlow() {
         })
         .eq('id', paymentLink.id)
 
-      toast.success("🎉 Payment completed successfully!");
+      toast.success("🎉 Payment sent to contract successfully!");
       
       // Show transaction details
       toast.success(`Transaction Hash: ${result.transactionHash.slice(0, 10)}...`, {
@@ -195,6 +235,11 @@ export function usePaymentFlow() {
           onClick: () => window.open(`https://sepolia.etherscan.io/tx/${result.transactionHash}`, '_blank')
         }
       });
+
+      // Redirect to process funds page after a short delay
+      setTimeout(() => {
+        router.navigate({ to: '/processfunds', search: { paymentId: payment.id } })
+      }, 2000)
       
     } catch (error) {
       console.error("Payment failed:", error);
@@ -221,7 +266,7 @@ export function usePaymentFlow() {
     } finally {
       setIsPaying(false)
     }
-  }, [activeAccount, verifyChainWhitelisting])
+  }, [activeAccount, router, verifyChainWhitelisting])
 
   return {
     handlePayment,
