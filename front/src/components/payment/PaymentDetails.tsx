@@ -15,19 +15,6 @@ interface PaymentDetailsProps {
 export function PaymentDetails({ paymentLink }: PaymentDetailsProps) {
   return (
     <>
-      {/* Payment Details Section */}
-      <div className="space-y-3 sm:space-y-4">
-        <div className="text-center">
-          <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
-            {paymentLink.amount} {paymentLink.currency}
-          </div>
-          <div className="text-xs sm:text-sm text-muted-foreground">
-            Payment Amount
-          </div>
-        </div>
-
-        <Separator />
-
         <div className="space-y-2 sm:space-y-3">
           <div className="flex justify-between items-center text-xs sm:text-sm">
             <span className="font-medium">Recipient:</span>
@@ -56,9 +43,6 @@ export function PaymentDetails({ paymentLink }: PaymentDetailsProps) {
             <span>{paymentLink.currency}</span>
           </div>
         </div>
-      </div>
-
-      <Separator />
     </>
   )
 } 
