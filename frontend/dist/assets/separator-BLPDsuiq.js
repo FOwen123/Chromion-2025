@@ -1,0 +1,6 @@
+import{x as p,r as d,j as n}from"./index-anYD-FGg.js";import{c as m,a as h}from"./createLucideIcon-DyRFF-zW.js";import{P as u}from"./index-BPYKPm2Y.js";const I=p({id:11155111,name:"Sepolia",nativeCurrency:{name:"Sepolia Ether",symbol:"ETH",decimals:18},blockExplorers:[{name:"Etherscan",url:"https://sepolia.etherscan.io",apiUrl:"https://api-sepolia.etherscan.io/api"}],testnet:!0});/**
+ * @license lucide-react v0.476.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const v=[["path",{d:"M21 12a9 9 0 1 1-6.219-8.56",key:"13zald"}]],L=m("LoaderCircle",v);var f="Separator",i="horizontal",x=["horizontal","vertical"],s=d.forwardRef((a,t)=>{const{decorative:o,orientation:r=i,...l}=a,e=E(r)?r:i,c=o?{role:"none"}:{"aria-orientation":e==="vertical"?e:void 0,role:"separator"};return n.jsx(u.div,{"data-orientation":e,...c,...l,ref:t})});s.displayName=f;function E(a){return x.includes(a)}var N=s;function P({className:a,orientation:t="horizontal",decorative:o=!0,...r}){return n.jsx(N,{"data-slot":"separator",decorative:o,orientation:t,className:h("bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",a),...r})}export{L,P as S,I as s};
