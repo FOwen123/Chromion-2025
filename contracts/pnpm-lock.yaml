@@ -14,6 +14,9 @@ importers:
       '@chainlink/contracts-ccip':
         specifier: ^1.6.0
         version: 1.6.0(ethers@6.14.3)
+      '@chainlink/local':
+        specifier: 0.2.5-beta.0
+        version: 0.2.5-beta.0(ethers@6.14.3)
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
@@ -98,6 +101,9 @@ packages:
   '@chainlink/contracts@1.4.0':
     resolution: {integrity: sha512-SpNCJ0TPOI6pa2l702Wk4WIP8ccw5ARcRP1E/ZTqaFffXNoZeF03WhsVL8f3l3OTRFA9Z40O5KcZzmJmZQkoFA==}
     engines: {node: '>=18', pnpm: '>=10'}
+
+  '@chainlink/local@0.2.5-beta.0':
+    resolution: {integrity: sha512-DsHPjPCkVa1PJ2V3nXXnEQ/P3txP1VpLA1bshMJHKtnvbuQqTIGq05VU98ttY1PVqtfb7bj4R9l/UnGH9bU6Jw==}
 
   '@changesets/apply-release-plan@7.0.12':
     resolution: {integrity: sha512-EaET7As5CeuhTzvXTQCRZeBUcisoYPDDcXvgTE/2jmmypKp0RC7LxKj/yzqeh/1qFTZI7oDGFcL1PHRuQuketQ==}
@@ -2461,6 +2467,16 @@ snapshots:
       '@scroll-tech/contracts': 0.1.0
       '@zksync/contracts': era-contracts@https://codeload.github.com/matter-labs/era-contracts/tar.gz/446d391d34bdb48255d5f8fef8a8248925fc98b9
       semver: 7.7.2
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - ethers
+      - utf-8-validate
+
+  '@chainlink/local@0.2.5-beta.0(ethers@6.14.3)':
+    dependencies:
+      '@chainlink/contracts': 1.4.0(ethers@6.14.3)
+      '@chainlink/contracts-ccip': 1.6.0(ethers@6.14.3)
     transitivePeerDependencies:
       - bufferutil
       - encoding
