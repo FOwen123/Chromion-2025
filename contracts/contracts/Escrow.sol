@@ -13,8 +13,7 @@ contract Escrow is CCIPReceiver, OwnerIsCreator, AccessControl {
 
     // Access Control Roles
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant DISPUTE_RESOLVER_ROLE =
-        keccak256("DISPUTE_RESOLVER_ROLE");
+    bytes32 public constant DISPUTE_RESOLVER_ROLE = keccak256("DISPUTE_RESOLVER_ROLE");
 
     // Errors
     error InvalidLinkToken();
@@ -228,7 +227,13 @@ contract Escrow is CCIPReceiver, OwnerIsCreator, AccessControl {
             uint256 tokenAmount
         )
     {
-        return (s_orderId, s_buyer, s_seller, s_tokenAddress, s_tokenAmount);
+        return (
+            s_orderId, 
+            s_buyer, 
+            s_seller, 
+            s_tokenAddress, 
+            s_tokenAmount
+        );
     }
 
     // CCIP Receiver function - handles incoming cross-chain payments
@@ -288,7 +293,6 @@ contract Escrow is CCIPReceiver, OwnerIsCreator, AccessControl {
         string calldata _deliveryInfo
     ) external orderExists(_orderId) onlyBuyer(_orderId) {
         Order storage order = orders[_orderId];
-
         if (order.status != OrderStatus.Pending) {
             revert InvalidOrderStatus(
                 _orderId,
