@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- LinkFi Text -->
+  <path d="M10 28V12H15V28H10Z" fill="currentColor"/>
+  <path d="M20 28V12H25V28H20Z" fill="currentColor"/>
+  <path d="M30 28V12H35V28H30Z" fill="currentColor"/>
+  <path d="M40 28V12H45V28H40Z" fill="currentColor"/>
+  <path d="M50 28V12H55V28H50Z" fill="currentColor"/>
+  <path d="M60 28V12H65V28H60Z" fill="currentColor"/>
+  
+  <!-- Link Icon -->
+  <path d="M80 20C80 17.2386 82.2386 15 85 15H90C92.7614 15 95 17.2386 95 20V20C95 22.7614 92.7614 25 90 25H85C82.2386 25 80 22.7614 80 20V20Z" stroke="currentColor" stroke-width="2"/>
+  <path d="M100 20C100 17.2386 102.239 15 105 15H110C112.761 15 115 17.2386 115 20V20C115 22.7614 112.761 25 110 25H105C102.239 25 100 22.7614 100 20V20Z" stroke="currentColor" stroke-width="2"/>
+  <path d="M90 20H105" stroke="currentColor" stroke-width="2"/>
+</svg> 
