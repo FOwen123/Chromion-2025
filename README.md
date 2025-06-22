@@ -16,31 +16,27 @@
 - **📦 Escrow System**  
   Built-in smart contract-based escrow ensures secure, trustless transactions for both buyers and sellers.
 
-🛠 Tech Stack
-Smart Contracts: Solidity (EVM), Chainlink CCIP
+## 🛠 Tech Stack
 
-AI Agent: ElizaOS + Anthropic
+- **Smart Contracts**: Solidity (EVM), Chainlink CCIP  
+- **AI Agent**: Amazon Bedrock, ElizaOS (modular plugin-based integration)  
+- **Frontend**: Next.js + TailwindCSS  
+- **Backend**: Node.js, TypeScript  
+- **Storage**: Cloudflare D1 (for transaction metadata)  
+- **Wallet**: MetaMask, Xellar Kit (for Web3 login)
 
-Frontend: Tanstack Router
+## 🔗 Deployed Contracts (MVP)
 
-Backend: Node.js, TypeScript
+This is the **Minimum Viable Product (MVP)** version of LinkFi, built to demonstrate the power of **Chainlink CCIP** in enabling seamless cross-chain transactions.
 
-Storage: Supabase 
+| Contract     | Network        | Address                                     |
+|--------------|----------------|---------------------------------------------|
+| **Sender**   | Sepolia (L1)   | `0x05Bc05725AE7dF7BfDd94891F138Aae0f0a2C689` |
+| **Escrow**   | Fuji (L2)      | `0x435F8F1dd271Ce2741CCb859cf588705a99929A8` |
 
-Wallet: MetaMask, Thirdweb (for Web3 login)
+In this MVP, we simulate a **real-world cross-chain refund scenario**:
+- The **Sender contract** on **Sepolia** initiates a transaction via CCIP.
+- The **Escrow contract** on **Fuji** receives and processes the message, managing fund flow securely.
 
-🔗 Deployed Contracts (MVP)
-This is the Minimum Viable Product (MVP) version of LinkFi, built to demonstrate the power of Chainlink CCIP in enabling seamless cross-chain transactions.
-
-Contract	Network	Address
-Sender	Sepolia (L1)	0x05Bc05725AE7dF7BfDd94891F138Aae0f0a2C689
-Escrow	Fuji (L2)	0x435F8F1dd271Ce2741CCb859cf588705a99929A8
-
-In this MVP, we simulate a real-world cross-chain refund scenario:
-
-The Sender contract on Sepolia initiates a transaction via CCIP.
-
-The Escrow contract on Fuji receives and processes the message, managing fund flow securely.
-
-💡 Why Fuji?
-In our full-scale version, we plan to deploy the core escrow system on Avalanche Fuji as the central coordination layer for managing payments, disputes, and AI-powered refunds. Fuji provides low-cost testing, scalability, and is EVM-compatible.
+> 💡 **Why Fuji?**  
+> In our full-scale version, we plan to deploy the core escrow system on **Avalanche Fuji** as the central coordination layer for managing payments, disputes, and AI-powered refunds. Fuji provides low-cost testing, scalability, and is EVM-compatible.
