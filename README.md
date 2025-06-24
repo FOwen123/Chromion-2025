@@ -23,7 +23,7 @@
 - **Frontend**: Next.js + TailwindCSS  
 - **Backend**: Node.js, TypeScript  
 - **Storage**: Cloudflare D1 (for transaction metadata)  
-- **Wallet**: MetaMask, Xellar Kit (for Web3 login)
+- **Wallet**: MetaMask, ThirdWeb (for Web3 login)
 
 ## 🔗 Deployed Contracts (MVP)
 
