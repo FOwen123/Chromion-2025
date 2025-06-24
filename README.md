@@ -20,7 +20,7 @@
 
 - **Smart Contracts**: Solidity (EVM), Chainlink CCIP  
 - **AI Agent**: Amazon Bedrock, ElizaOS (modular plugin-based integration)  
-- **Frontend**: Next.js + TailwindCSS  
+- **Frontend**: Tanstack Router + TailwindCSS  
 - **Backend**: Node.js, TypeScript  
 - **Storage**: Cloudflare D1 (for transaction metadata)  
 - **Wallet**: MetaMask, ThirdWeb (for Web3 login)
