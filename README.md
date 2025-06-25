@@ -40,3 +40,6 @@ In this MVP, we simulate a **real-world cross-chain refund scenario**:
 
 > 💡 **Why Fuji?**  
 > In our full-scale version, we plan to deploy the core escrow system on **Avalanche Fuji** as the central coordination layer for managing payments, disputes, and AI-powered refunds. Fuji provides low-cost testing, scalability, and is EVM-compatible.
+
+## Demo
+https://youtu.be/hZikjbj44sM
